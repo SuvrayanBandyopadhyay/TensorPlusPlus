@@ -1,2 +1,2 @@
 # TensorPP
-A library to handle Tensor and Machine Learning in C++
+A library to handle Tensors and Machine Learning in C++
