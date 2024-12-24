@@ -48,8 +48,8 @@ namespace TPP
 		}
 		//Gives flattened index 
 		size_t getFlatIndex(std::vector<size_t> index);
-
 		
+
 	public:
 		
 		//Constructor
@@ -121,6 +121,8 @@ namespace TPP
 		//Gives the transpose of the tensor
 		Tensor transpose();
 
+		//Printing the tensor
+		friend std::ostream& operator<<(std::ostream& os, const Tensor& obj);
 		
 	};
 
@@ -130,6 +132,7 @@ namespace TPP
 	Tensor Vector(std::initializer_list<long double>data);
 
 	Tensor Matrix(std::initializer_list<std::initializer_list<long double>>data);
+
 
 
 }

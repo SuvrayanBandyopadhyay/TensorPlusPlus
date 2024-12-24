@@ -586,3 +586,30 @@ Tensor Tensor::transpose()
 	
 }
 
+//function to recursively print a tensor
+
+void printTensor(std::ostream& os, Tensor t)
+{
+	if (t.dim() == 0) 
+	{
+		os << t.data()[0] << ",";
+	}
+	else 
+	{
+		os << "{";
+		for (int i = 0; i < t.shape()[0]; i++) 
+		{
+			printTensor(os, t.at({(size_t)i}));
+		}
+		os << "}\n";
+	}
+
+}
+
+//Function defintion for printing the tensor
+std::ostream& TPP::operator<<(std::ostream& os, const Tensor& m)
+{
+
+	printTensor(os, m);
+	return os;
+}
