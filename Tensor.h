@@ -6,6 +6,7 @@
 #include<initializer_list>
 #include<string>
 #include<algorithm>
+#include <random>
 
 
 namespace TPP
@@ -51,6 +52,8 @@ namespace TPP
 		
 
 	public:
+		//Default
+		Tensor() = default;
 		
 		//Constructor
 		template<typename T>
@@ -112,6 +115,11 @@ namespace TPP
 		void operator*=(Tensor second);
 		Tensor matMul(Tensor second);
 
+		//Multiplication with scalars
+		Tensor operator*(long double second);
+		void operator*=(long double second);
+		friend Tensor operator*(long double second, const Tensor& tensor);
+
 		//Returns dimension of a tensor
 		unsigned int dim();
 
@@ -123,6 +131,12 @@ namespace TPP
 
 		//Printing the tensor
 		friend std::ostream& operator<<(std::ostream& os, const Tensor& obj);
+		//Reshape function
+		Tensor reshape(std::vector<size_t>newshape);
+		//Flatten
+		Tensor flatten();
+		//Flatten column
+		Tensor flattenCol();
 		
 	};
 
@@ -133,6 +147,8 @@ namespace TPP
 
 	Tensor Matrix(std::initializer_list<std::initializer_list<long double>>data);
 
+	//Random Tensor
+	Tensor RandomTensor(std::vector<size_t>shape,time_t seed, long double min = 0, long double max = 1);
 
 
 }

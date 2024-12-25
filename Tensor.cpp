@@ -3,11 +3,29 @@
 using namespace std;
 using namespace TPP;
 
+//Helper function to see how many elements are there for a given shape
+unsigned int numberFromShape(vector<size_t>shape) 
+{
+	unsigned int size = 1;
+	for (int i = 0; i < shape.size(); i++) 
+	{
+		size *= shape[i];
+	}
+	return size;
+}
+
 //Constructor
 Tensor::Tensor(vector<size_t>shape, vector<long double>data) 
 {
-	_shape = shape;
-	_data = data;
+	if (numberFromShape(shape) == data.size())
+	{
+		_shape = shape;
+		_data = data;
+	}
+	else 
+	{
+		throw invalid_argument("Invalid shape");
+	}
 }
 Tensor::Tensor(std::vector<size_t>shape, long double value) 
 {
@@ -15,10 +33,8 @@ Tensor::Tensor(std::vector<size_t>shape, long double value)
 
 
 	//Subtract 1 from each element in shape to get the raw size
-	std::for_each(shape.begin(), shape.end(), [](size_t &x) {x = x - 1; });
-	
 
-	int raw_size = getFlatIndex(shape)+1;
+	unsigned int raw_size = numberFromShape(_shape);
 
 	vector<long double>data;
 	for (unsigned i = 0; i < raw_size; i++) 
@@ -495,7 +511,7 @@ Tensor Tensor::matMul(Tensor second)
 		}
 	}
 	//Check if we can multiply the last 2 dimensions
-	if (_shape[_shape.size() - 2] != _shape[_shape.size() - 1] || _shape[_shape.size() - 1] != _shape[_shape.size() - 2]) 
+	if (_shape[_shape.size() - 1] != second.shape()[second.shape().size() - 2])
 	{
 		string error = "Cant batch multiply tensors of shapes " + shapeString() + " and " + second.shapeString();
 		throw std::invalid_argument(error.c_str());
@@ -612,4 +628,79 @@ std::ostream& TPP::operator<<(std::ostream& os, const Tensor& m)
 
 	printTensor(os, m);
 	return os;
+}
+//Reshape function
+Tensor Tensor::reshape(vector<size_t>newshape) 
+{
+	if (numberFromShape(newshape) == numberFromShape(_shape)) 
+	{
+		return Tensor(newshape, _data);
+	}
+	else
+	{
+		throw invalid_argument("Invalid shape");
+	}
+}
+
+//Flatten function
+Tensor Tensor::flatten() 
+{
+	vector<size_t> nshape = { 1,data().size() };
+	return Tensor(nshape, _data);
+}
+//Flatten Column
+Tensor Tensor::flattenCol()
+{
+	vector<size_t> nshape = { data().size(),1 };
+	
+	return Tensor(nshape, _data);
+}
+
+//Random Tensor
+Tensor TPP::RandomTensor(std::vector<size_t>shape,time_t seed, long double min, long double max)
+{
+	//The random number engine
+	mt19937_64 eng(seed);
+	uniform_real_distribution<long double> dis(min, max);
+	
+	
+
+
+	unsigned int raw_size = numberFromShape(shape);
+
+	vector<long double>data;
+	for (unsigned i = 0; i < raw_size; i++)
+	{
+		data.push_back(dis(eng));
+	}
+
+	return Tensor(shape, data);
+	
+
+}
+
+
+Tensor Tensor::operator*(long double second) 
+{
+	vector<long double>newdata = _data;
+	for (int i = 0; i < newdata.size(); i++)
+	{
+		newdata[i] *= second;
+	}
+	return Tensor(_shape, newdata);
+}
+
+void Tensor::operator*=(long double second) 
+{
+	for (int i = 0; i < _data.size(); i++) 
+	{
+
+		_data[i] *= second;
+	}
+}
+
+Tensor TPP::operator*(long double second, const Tensor& tensor) 
+{
+	Tensor ret =  (Tensor)tensor * second;
+	return ret;
 }
