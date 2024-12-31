@@ -137,6 +137,9 @@ namespace TPP
 		Tensor flatten();
 		//Flatten column
 		Tensor flattenCol();
+		//Convolutional multiplication
+		Tensor convMult(Tensor second,unsigned int stride);
+		
 		
 	};
 
@@ -148,7 +151,7 @@ namespace TPP
 	Tensor Matrix(std::initializer_list<std::initializer_list<long double>>data);
 
 	//Random Tensor
-	Tensor RandomTensor(std::vector<size_t>shape,time_t seed, long double min = 0, long double max = 1);
+	Tensor RandomTensor(std::vector<size_t>shape,time_t seed, long double min = -1, long double max = 1);
 
 
 }

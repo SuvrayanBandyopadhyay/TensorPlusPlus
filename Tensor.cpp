@@ -656,6 +656,134 @@ Tensor Tensor::flattenCol()
 	return Tensor(nshape, _data);
 }
 
+//Scalar Multiplication
+Tensor Tensor::operator*(long double second)
+{
+	vector<long double>newdata = _data;
+	for (int i = 0; i < newdata.size(); i++)
+	{
+		newdata[i] *= second;
+	}
+	return Tensor(_shape, newdata);
+}
+
+void Tensor::operator*=(long double second)
+{
+	for (int i = 0; i < _data.size(); i++)
+	{
+
+		_data[i] *= second;
+	}
+}
+
+Tensor TPP::operator*(long double second, const Tensor& tensor)
+{
+	Tensor ret = (Tensor)tensor * second;
+	return ret;
+}
+
+//Recursive convolution function
+void recConv(Tensor first, Tensor second, Tensor* finalT, unsigned int stride, vector<size_t>slice = {}, int currdim = 0)
+{
+	//If not the deepest level
+	if (currdim < first.dim() - 2)
+	{
+		for (unsigned int i = 0; i < first.shape()[currdim]; i++)
+		{
+			vector<size_t>newslice = slice;
+			newslice.push_back(i);
+			recConv(first, second, finalT,stride, newslice, currdim + 1);
+
+		}
+	}
+	//If we have already reached the penultimate depth
+	else
+	{
+		//Input
+		unsigned int in_row = first.shape()[first.dim() - 2];
+		unsigned int in_col = first.shape()[first.dim() - 1];
+
+		//Filter
+		unsigned int f_row = second.shape()[second.dim() - 2];
+		unsigned int f_col = second.shape()[second.dim() - 1];
+
+		 
+		unsigned int y = 0;
+		for (int i = 0; i + f_row <= in_row; i+=stride) 
+		{
+			unsigned int x = 0;
+			for (int j = 0; j + f_col <= in_col; j+=stride)
+			{
+				Tensor convVal = Scalar(0);
+				//Now the operations
+				for (int k = 0; k < f_row; k++) 
+				{
+					for (int l = 0; l < f_col; l++) 
+					{
+						//First index
+						vector<size_t> findex = slice;
+						findex.push_back(i + k);
+						findex.push_back(j + l);
+						//Second index
+						vector<size_t> sindex = slice;
+						sindex.push_back(k);
+						sindex.push_back(l);
+
+
+						convVal += first.at(findex) % second.at(sindex);
+					}
+				}
+
+				//Final index
+				vector<size_t> index = slice;
+				index.push_back(y);
+				index.push_back(x);
+
+				finalT->set(index, convVal);
+				x++;
+			}
+			y++;
+		}
+
+
+	}
+
+}
+
+//Convolutional multiplication
+Tensor Tensor::convMult(Tensor second,unsigned int stride)
+{
+	vector<size_t> _newshape;
+	//Check if they can be multiplied in batches
+	if (_shape.size() != second._shape.size())
+	{
+		string error = "Cant batch multiply tensors of shapes " + shapeString() + " and " + second.shapeString();
+		throw std::invalid_argument(error.c_str());
+	}
+	//Check if all but the last 2 dimensions are the same
+	for (unsigned int i = 0; i < _shape.size() - 2; i++)
+	{
+		if (_shape[i] != second._shape[i])
+		{
+			string error = "Cant batch multiply tensors of shapes " + shapeString() + " and " + second.shapeString();
+			throw std::invalid_argument(error.c_str());
+		}
+	}
+
+
+	//Create the final tensor shape
+	vector<size_t>final_shape = _shape;
+
+	//Shape after convolution
+	final_shape[final_shape.size() - 1] = (int)((final_shape[final_shape.size() - 1]- second.shape()[second.shape().size() - 1])/stride)+1;
+	final_shape[final_shape.size() - 2] = (int)((final_shape[final_shape.size() - 2] - second.shape()[second.shape().size() - 2]) / stride) + 1;
+
+	Tensor finalTensor(final_shape, 0);
+
+	recConv(*this, second, &finalTensor,stride);
+	return finalTensor;
+}
+
 //Random Tensor
 Tensor TPP::RandomTensor(std::vector<size_t>shape,time_t seed, long double min, long double max)
 {
@@ -680,27 +808,5 @@ Tensor TPP::RandomTensor(std::vector<size_t>shape,time_t seed, long double min, 
 }
 
 
-Tensor Tensor::operator*(long double second) 
-{
-	vector<long double>newdata = _data;
-	for (int i = 0; i < newdata.size(); i++)
-	{
-		newdata[i] *= second;
-	}
-	return Tensor(_shape, newdata);
-}
 
-void Tensor::operator*=(long double second) 
-{
-	for (int i = 0; i < _data.size(); i++) 
-	{
 
-		_data[i] *= second;
-	}
-}
-
-Tensor TPP::operator*(long double second, const Tensor& tensor) 
-{
-	Tensor ret =  (Tensor)tensor * second;
-	return ret;
-}
