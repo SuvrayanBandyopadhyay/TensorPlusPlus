@@ -8,6 +8,7 @@ Dense::Dense(unsigned int in, unsigned int out, time_t seed,int min,int max)
 {
 	input_size = in;
 	output_size = out;
+	_input_shape = { 1,out };
 
 	W = RandomTensor({ in,out }, seed,min,max);
 	B = RandomTensor({ 1,out }, seed+1,min,max);
@@ -33,6 +34,11 @@ Tensor Dense::backpropagate(Tensor feedback)
 	return feedback * W.transpose();
 }
 
+vector<size_t> Dense::outputShape()
+{
+	return B.shape();
+}
+
 //Update
 void Dense::update(long double alpha) 
 {
@@ -47,6 +53,10 @@ void Dense::update(long double alpha)
 
 //Activation functions
 //Relu
+RELU::RELU(vector<size_t>input_shape)
+{
+	_input_shape = input_shape;
+}
 //Output
 Tensor RELU::output(Tensor in) 
 {
@@ -81,12 +91,17 @@ Tensor RELU::backpropagate(Tensor feedback)
 	//Return hadamard product
 	return (diff % feedback);
 }
-
+//output shape
+vector<size_t>RELU::outputShape()
+{
+	return _input_shape;
+}
 
 //Leaky RELU
-LEAKY_RELU::LEAKY_RELU(long double a) 
+LEAKY_RELU::LEAKY_RELU(vector<size_t>input_shape,long double a) 
 {
 	alpha = a;
+	_input_shape = input_shape;
 }
 //Output
 Tensor LEAKY_RELU::output(Tensor in)
@@ -126,7 +141,17 @@ Tensor LEAKY_RELU::backpropagate(Tensor feedback)
 	return (diff % feedback);
 }
 
+//Output shape
+vector<size_t>LEAKY_RELU::outputShape()
+{
+	return _input_shape;
+}
+
 //SIGMOID
+SIGMOID::SIGMOID(vector<size_t>input_shape) 
+{
+	_input_shape = input_shape;
+}
 //Output
 Tensor SIGMOID::output(Tensor in)
 {
@@ -156,7 +181,16 @@ Tensor SIGMOID::backpropagate(Tensor feedback)
 	return (diff % feedback);
 }
 
+//Output shape
+vector<size_t>SIGMOID::outputShape()
+{
+	return _input_shape;
+}
 //Tanh 
+TANH::TANH(vector<size_t>input_shape) 
+{
+	_input_shape = input_shape;
+}
 //Output
 Tensor TANH::output(Tensor in)
 {
@@ -185,7 +219,17 @@ Tensor TANH::backpropagate(Tensor feedback)
 	return (diff % feedback);
 }
 
+//Output shape
+vector<size_t> TANH::outputShape()
+{
+	return _input_shape;
+}
+
 //Softmax 
+SOFTMAX::SOFTMAX(vector<size_t>input_shape) 
+{
+	_input_shape = input_shape;
+}
 //Output
 Tensor SOFTMAX::output(Tensor in)
 {
@@ -228,7 +272,16 @@ Tensor SOFTMAX::backpropagate(Tensor feedback)
 	return (diff % feedback);
 }
 
+//Output shape
+vector<size_t>SOFTMAX::outputShape()
+{
+	return _input_shape;
+}
 //Flatten
+FLATTEN::FLATTEN(vector<size_t>input_shape) 
+{
+	_input_shape = input_shape;
+}
 //Output
 Tensor FLATTEN::output(Tensor in)
 {
@@ -241,14 +294,17 @@ Tensor FLATTEN::backpropagate(Tensor feedback)
 {
 	return feedback.reshape(input.shape());
 }
-
+vector<size_t>FLATTEN::outputShape()
+{
+	return _input_shape;
+}
 //CONV
 TPP::CONV::CONV(unsigned int n, unsigned int fsize, std::vector<size_t>input_shape, time_t seed, unsigned int stride, long double min, long double max)
 {
 	_stride = stride;
 	unsigned int resultx = ((input_shape[input_shape.size() - 1]-fsize)/stride) + 1;
 	unsigned int resulty = ((input_shape[input_shape.size() - 2] - fsize) / stride) + 1;
-
+	_input_shape = input_shape;
 	//The filter shape
 	vector<size_t>filter_shape = input_shape;
 	filter_shape[input_shape.size() - 2] = fsize;
@@ -264,17 +320,33 @@ TPP::CONV::CONV(unsigned int n, unsigned int fsize, std::vector<size_t>input_sha
 	{
 		Tensor f = RandomTensor(filter_shape, seed+i,min,max);
 		Tensor b = RandomTensor(bias_shape, seed+i, min, max);
-
+		Tensor df = Tensor(filter_shape, 0);
+		Tensor db = Tensor(bias_shape, 0);
 		//Push back the filters and bias;
 		filter.push_back(f);
 		bias.push_back(b);
+		//Gradients
+		dfilter.push_back(df);
+		dbias.push_back(db);
+		//Reset Tensors
+		rfilter.push_back(df);
+		rbias.push_back(db);
 	}
 
 }
 //Output
 Tensor CONV::output(Tensor in)
 {
+	//Check if input is valid
+	if (in.shape() != _input_shape) 
+	{
+	
+		throw invalid_argument("Invalid input");
+	}
+
 	input = in;
+	
+
 
 	//Resultant tensor
 	vector<size_t>fshape = bias[0].shape();
@@ -293,8 +365,264 @@ Tensor CONV::output(Tensor in)
 
 
 }
-//Flatten
+//Backpropagate convolutional layer
 Tensor CONV::backpropagate(Tensor feedback)
 {
-	return feedback.reshape(input.shape());
+	//Dilate the feedback tensor
+	Tensor fb_filter = feedback.dilate(_stride-1);
+	//Convolutional operation with input
+	for (unsigned int i = 0; i < dfilter.size(); i++)
+	{
+		//Get the delta change
+		Tensor delta = input.convMult(fb_filter.at({ i }), 1);
+
+		//Update the values
+		dfilter[i] += delta;
+		dbias[i] += feedback.at({ i });
+	}
+
+	return feedback;
+}
+
+//Update
+void CONV::update(long double lr) 
+{
+	for (unsigned int i = 0; i < filter.size(); i++) 
+	{
+		filter[i] -= lr * dfilter[i];
+		bias[i] -= lr * dbias[i];
+	}
+	dfilter = rfilter;
+	dbias = rbias;
+}
+
+//Output shape
+vector<size_t>CONV::outputShape()
+{
+	vector<size_t> output_shape = bias[0].shape();
+	//Since it returns a tensor 
+	output_shape.insert(output_shape.begin(), bias.size());
+	return output_shape;
+}
+
+
+//MAXPOOLING
+//CONV
+TPP::MAXPOOLING::MAXPOOLING(unsigned int fsize, std::vector<size_t>input_shape)
+{
+
+	//The input shape
+	_input_shape = input_shape;
+
+	//The output shape
+	
+	unsigned int resultx = ((input_shape[input_shape.size() - 1]) / fsize) ;
+	unsigned int resulty = ((input_shape[input_shape.size() - 2]) / fsize) ;
+	cout << resultx << "," << resulty << endl;
+
+	_output_shape = input_shape;
+	_output_shape[_output_shape.size() - 1] = resultx;
+	_output_shape[_output_shape.size() - 2] = resulty;
+
+	//The filter shape
+	_pool_shape = input_shape;
+	_pool_shape[input_shape.size() - 2] = fsize;
+	_pool_shape[input_shape.size() - 1] = fsize;
+
+
+}
+
+
+//Recursive pooling
+void recPool(Tensor first, vector<size_t> pool_shape, Tensor* finalT, vector<size_t>slice = {}, int currdim = 0)
+{
+	//If not the deepest level
+	if (currdim < first.dim() - 2)
+	{
+		for (unsigned int i = 0; i < first.shape()[currdim]; i++)
+		{
+			vector<size_t>newslice = slice;
+			newslice.push_back(i);
+			recPool(first, pool_shape, finalT, newslice, currdim + 1);
+
+		}
+	}
+	//If we have already reached the penultimate depth
+	else
+	{
+		//Input
+		unsigned int in_row = first.shape()[first.dim() - 2];
+		unsigned int in_col = first.shape()[first.dim() - 1];
+
+		//Filter
+		unsigned int f_row = pool_shape[pool_shape.size()-2];
+		unsigned int f_col = pool_shape[pool_shape.size()-1];
+
+
+		unsigned int y = 0;
+		for (int i = 0; i + f_row <= in_row; i += f_row)
+		{
+			unsigned int x = 0;
+			for (int j = 0; j + f_col <= in_col; j += f_col)
+			{
+				long double max = -INFINITY;
+				//Now the operations
+				for (int k = 0; k < f_row; k++)
+				{
+					for (int l = 0; l < f_col; l++)
+					{
+						//index
+						vector<size_t> findex = slice;
+						findex.push_back(i + k);
+						findex.push_back(j + l);
+						
+						long double val = first.at(findex).value();
+						if (val >= max)
+						{
+							max = val;
+						}
+
+
+						
+					}
+				}
+
+				//Final index
+				vector<size_t> index = slice;
+				index.push_back(y);
+				index.push_back(x);
+
+				finalT->set(index, Scalar(max));
+	
+				x++;
+				
+			}
+			y++;
+		}
+
+
+	}
+
+}
+
+
+
+//Output
+Tensor MAXPOOLING::output(Tensor in)
+{
+	//Check if input is valid
+	if (in.shape() != _input_shape)
+	{
+
+		throw invalid_argument("Invalid input");
+	}
+
+	input = in;
+
+	
+
+	//Resultant tensor
+	Tensor result(_output_shape, 0);
+	recPool(input, _pool_shape, &result);
+	
+	
+
+	
+	return result;
+
+
+
+}
+
+
+//Recursive maxpooling backpropagation
+void recPoolBack(Tensor first,Tensor fb, vector<size_t> pool_shape, Tensor* finalT, vector<size_t>slice = {}, int currdim = 0)
+{
+	//If not the deepest level
+	if (currdim < first.dim() - 2)
+	{
+		for (unsigned int i = 0; i < first.shape()[currdim]; i++)
+		{
+			vector<size_t>newslice = slice;
+			newslice.push_back(i);
+			recPoolBack(first,fb, pool_shape, finalT, newslice, currdim + 1);
+
+		}
+	}
+	//If we have already reached the penultimate depth
+	else
+	{
+		//Input
+		unsigned int in_row = first.shape()[first.dim() - 2];
+		unsigned int in_col = first.shape()[first.dim() - 1];
+
+		//Filter
+		unsigned int f_row = pool_shape[pool_shape.size()-2];
+		unsigned int f_col = pool_shape[pool_shape.size() - 1];
+
+
+		unsigned int y = 0;
+		for (int i = 0; i + f_row <= in_row; i += f_row)
+		{
+			unsigned int x = 0;
+			for (int j = 0; j + f_col <= in_col; j += f_col)
+			{
+				long double max = -INFINITY;
+				vector<size_t>maxindex = {};
+				//Now the operations
+				for (int k = 0; k < f_row; k++)
+				{
+					for (int l = 0; l < f_col; l++)
+					{
+						//index
+						vector<size_t> findex = slice;
+						findex.push_back(i + k);
+						findex.push_back(j + l);
+
+						long double val = first.at(findex).value();
+						if (val >= max)
+						{
+							max = val;
+							maxindex = findex;
+						}
+
+
+
+					}
+				}
+
+				//Feedback index
+				vector<size_t> fbindex = slice;
+				fbindex.push_back(y);
+				fbindex.push_back(x);
+
+				finalT->set(maxindex,fb.at(fbindex) );
+				x++;
+			}
+			y++;
+		}
+
+
+	}
+
+}
+
+
+
+
+//Backpropagate maxpooling layer
+Tensor MAXPOOLING::backpropagate(Tensor feedback)
+{
+	//Tensor to return 
+	Tensor ret = Tensor(_input_shape, 0);
+	recPoolBack(input,feedback, _pool_shape, &ret);
+	return ret;
+}
+
+
+
+//Output shape
+vector<size_t>MAXPOOLING::outputShape()
+{
+	return _output_shape;
 }

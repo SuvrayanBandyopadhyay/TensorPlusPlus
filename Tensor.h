@@ -139,7 +139,12 @@ namespace TPP
 		Tensor flattenCol();
 		//Convolutional multiplication
 		Tensor convMult(Tensor second,unsigned int stride);
-		
+		//Tensor dilation operation
+		Tensor dilate(unsigned int stride);
+		//Sum of elements
+		long double sumOfElements();
+		//Value
+		long double value();
 		
 	};
 

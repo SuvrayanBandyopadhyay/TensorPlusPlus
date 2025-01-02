@@ -14,6 +14,9 @@ namespace TPP
 	//Base class for layer
 	class Layer
 	{
+	protected:
+		std::vector<size_t>_input_shape;
+
 	public:
 		virtual ~Layer() {};
 		//Get output
@@ -24,6 +27,9 @@ namespace TPP
 
 		//Update gradients
 		virtual void update(long double lr) = 0;
+
+		//Get the shape of the output
+		virtual std::vector<size_t> outputShape() = 0;
 	};
 
 	//Derived class for a Dense Layer
@@ -59,7 +65,7 @@ namespace TPP
 		//Todo replace with actual optimizations
 		void update(long double alpha) override;
 
-
+		std::vector<size_t> outputShape() override;
 
 	};
 	
@@ -73,7 +79,7 @@ namespace TPP
 	private:
 		Tensor input;
 	public:
-		RELU() = default;
+		RELU(std::vector<size_t>input_shape);
 
 		//Output function
 		Tensor output(Tensor in) override;
@@ -82,6 +88,8 @@ namespace TPP
 		Tensor backpropagate(Tensor feedback) override;
 		//Update gradients
 		void update(long double lr)override {};
+
+		std::vector<size_t> outputShape() override;
 
 	};
 	//LEAKY RELU
@@ -91,7 +99,7 @@ namespace TPP
 		Tensor input;
 		long double alpha;
 	public:
-		LEAKY_RELU(long double a) ;
+		LEAKY_RELU(std::vector<size_t>input_shape,long double a) ;
 
 		//Output function
 		Tensor output(Tensor in) override;
@@ -100,6 +108,9 @@ namespace TPP
 		Tensor backpropagate(Tensor feedback) override;
 		//Update gradients
 		void update(long double lr)override {};
+
+		//Output shape
+		std::vector<size_t> outputShape() override;
 
 	};
 	//SIGMOID
@@ -108,7 +119,7 @@ namespace TPP
 	private:
 		Tensor input;
 	public:
-		SIGMOID() = default;
+		SIGMOID(std::vector<size_t>input_shape);
 
 		//Output function
 		Tensor output(Tensor in) override;
@@ -117,6 +128,8 @@ namespace TPP
 		Tensor backpropagate(Tensor feedback) override;
 		//Update gradients
 		void update(long double lr)override {};
+		//Output shape
+		std::vector<size_t> outputShape() override;
 
 	};
 	//Tanh 
@@ -127,7 +140,7 @@ namespace TPP
 		long double alpha;
 	public:
 
-		TANH() = default;
+		TANH(std::vector<size_t>input_shape);
 
 		//Output function
 		Tensor output(Tensor in) override;
@@ -136,6 +149,9 @@ namespace TPP
 		Tensor backpropagate(Tensor feedback) override;
 		//Update gradients
 		void update(long double lr)override {};
+
+		//Output shape
+		std::vector<size_t> outputShape() override;
 
 	};
 	//Softmax
@@ -145,7 +161,7 @@ namespace TPP
 		Tensor input;
 	public:
 
-		SOFTMAX() = default;
+		SOFTMAX(std::vector<size_t>input_shape);
 
 		//Output function
 		Tensor output(Tensor in) override;
@@ -154,6 +170,9 @@ namespace TPP
 		Tensor backpropagate(Tensor feedback) override;
 		//Update gradients
 		void update(long double lr)override {};
+
+		//Output shape
+		std::vector<size_t> outputShape() override;
 	};
 	//Flatten
 	class FLATTEN :public Layer
@@ -162,7 +181,7 @@ namespace TPP
 		Tensor input;
 	public:
 
-		FLATTEN() = default;
+		FLATTEN(std::vector<size_t>input_shape);
 
 		//Output function
 		Tensor output(Tensor in) override;
@@ -171,6 +190,8 @@ namespace TPP
 		Tensor backpropagate(Tensor feedback) override;
 		//Update gradients
 		void update(long double lr)override {};
+		//Output shape
+		std::vector<size_t> outputShape() override;
 	};
 	//Convolutional Layer
 	class CONV:public Layer
@@ -179,6 +200,14 @@ namespace TPP
 		unsigned int _stride;
 		std::vector<Tensor> filter;
 		std::vector<Tensor> bias;
+		std::vector<size_t>_input_shape;
+
+		//Gradients
+		std::vector<Tensor> dfilter;
+		std::vector<Tensor> dbias;
+		//Gradient resets (used to re-initialize gradients)
+		std::vector<Tensor>rfilter;
+		std::vector<Tensor>rbias;
 		Tensor input;
 	public:
 
@@ -190,6 +219,33 @@ namespace TPP
 		//Backpropagate function
 		Tensor backpropagate(Tensor feedback) override;
 		//Update gradients
-		void update(long double lr)override {};
+		void update(long double lr)override;
+		//Output shape
+		std::vector<size_t> outputShape() override;
+	};
+
+	//MAXPOOLING layer
+	class MAXPOOLING :public Layer
+	{
+	private:
+
+		std::vector<size_t> _pool_shape;
+		std::vector<size_t>_input_shape;
+		std::vector<size_t>_output_shape;
+		
+		Tensor input;
+	public:
+
+		MAXPOOLING(unsigned int fsize, std::vector<size_t>input_shape);
+
+		//Output function
+		Tensor output(Tensor in) override;
+
+		//Backpropagate function
+		Tensor backpropagate(Tensor feedback) override;
+		//Update gradients
+		void update(long double lr) {};
+		//Output shape
+		std::vector<size_t> outputShape() override;
 	};
 }

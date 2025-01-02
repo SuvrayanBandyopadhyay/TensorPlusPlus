@@ -783,6 +783,86 @@ Tensor Tensor::convMult(Tensor second,unsigned int stride)
 	recConv(*this, second, &finalTensor,stride);
 	return finalTensor;
 }
+//Recursive dilation
+
+//Recursive convolution function
+void recDil(Tensor first, Tensor* finalT, unsigned int dilation, vector<size_t>slice = {}, int currdim = 0)
+{
+	//If not the deepest level
+	if (currdim < first.dim() - 2)
+	{
+		for (unsigned int i = 0; i < first.shape()[currdim]; i++)
+		{
+			vector<size_t>newslice = slice;
+			newslice.push_back(i);
+			recDil(first, finalT, dilation, newslice, currdim + 1);
+
+		}
+	}
+	//If we have already reached the penultimate depth
+	else
+	{
+		//Input x and y bounds
+		unsigned int in_x = first.shape()[first.dim() - 1];
+		unsigned int in_y = first.shape()[first.dim() - 2];
+
+		unsigned int out_y = 0;
+		for (unsigned int i = 0; i < in_y; i++) 
+		{
+			unsigned int out_x = 0;
+			for (unsigned int j = 0; j < in_x; j++)
+			{
+				//Getting the value
+				vector<size_t>index = slice;
+				index.push_back(i);
+				index.push_back(j);
+				Tensor val = first.at(index);
+				//Setting the value in the final tensor
+				vector<size_t>findex = slice;
+				findex.push_back(out_y);
+				findex.push_back(out_x);
+
+				finalT->set(findex, val);
+				//Go to the next pos
+				out_x += 1+dilation;
+			}
+			out_y += 1+dilation;
+			
+		}
+
+	}
+
+}
+
+
+//Tensor dilation function
+Tensor Tensor::dilate(unsigned int dilation)
+{
+	//Dilate the tensor
+	unsigned int x_dil = (_shape[_shape.size() - 1] - 1)*dilation;
+	unsigned int y_dil = (_shape[_shape.size() - 2] - 1)*dilation;
+
+	//The new shape
+	vector<size_t> nshape = _shape;
+	nshape[nshape.size() - 1] += x_dil;
+	nshape[nshape.size() - 2] += y_dil;
+
+	Tensor finalT(nshape, 0);
+
+	recDil(*this, &finalT, dilation);
+	return finalT;
+}
+
+//Sum of elements
+long double Tensor::sumOfElements() 
+{
+	long double sum = 0;
+	for (int i = 0; i < _data.size(); i++) 
+	{
+		sum += _data[i];
+	}
+	return sum;
+}
 
 //Random Tensor
 Tensor TPP::RandomTensor(std::vector<size_t>shape,time_t seed, long double min, long double max)
@@ -806,6 +886,16 @@ Tensor TPP::RandomTensor(std::vector<size_t>shape,time_t seed, long double min, 
 	
 
 }
+
+long double Tensor::value() 
+{
+	if (dim() != 0) 
+	{
+		throw std::invalid_argument("Value is only defined for scalars with no dimension. Use data() access raw tensor data");
+	}
+	return _data[0];
+}
+
 
 
 
