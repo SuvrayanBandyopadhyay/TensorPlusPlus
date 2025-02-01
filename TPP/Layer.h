@@ -252,40 +252,5 @@ namespace TPP
 		std::vector<size_t> outputShape() override;
 	};
 
-	//RNN Layer
-	enum Activation { RELU, TANH, SIGMOID, LEAKY_RELU};
-	/*The RNN layer takes an input of 2 vectors ..*/
-	class RNN:public Layer
-	{
-	private:
-		Tensor Waa;
-		Tensor Wax;
-		Tensor Ba;
-		Tensor Wya;
-		Tensor By;
-
-		Tensor dWaa;
-		Tensor dWax;
-		Tensor dBa;
-		Tensor dWya;
-		Tensor dBy;
-
-		Layer *hidden_acti;
-		Layer *output_acti;
-
-	public:
-		//Constructor
-		RNN(unsigned int input_size, unsigned int hidden_size, unsigned int output_size, Activation g1, Activation g2, time_t currtime);
-		//Output function
-		Tensor output(Tensor in) override;
-
-		//Backpropagate function
-		Tensor backpropagate(Tensor feedback) override;
-
-		//Update function
-		//Todo replace with actual optimizations
-		void update(long double alpha) override;
-
-		std::vector<size_t> outputShape() override;
-	};
+	
 }

@@ -688,35 +688,3 @@ vector<size_t>MAXPOOLING::outputShape()
 	return _output_shape;
 }
 
-//RNN Layer
-RNN::RNN(unsigned int input_size, unsigned int hidden_size, unsigned int output_size, Activation g1, Activation g2, time_t currtime)
-{
-	//Create the matrices
-	Waa = RandomTensor({ hidden_size,hidden_size }, 0);
-	Wax = RandomTensor({ hidden_size,input_size }, 0);
-	Ba = RandomTensor({ 1,hidden_size }, 0);
-
-	Wya = RandomTensor({ hidden_size,output_size }, 0);
-	By = RandomTensor({ 1,output_size }, 0);
-
-	dWaa = Tensor({ hidden_size,hidden_size }, 0);
-	dWax = Tensor({ hidden_size,input_size }, 0);
-	dBa = Tensor({ 1,hidden_size }, 0);
-
-	dWya = Tensor({ hidden_size,output_size }, 0);
-	dBy = Tensor({ 1,output_size }, 0);
-
-	//For activation functions
-	
-
-}
-
-//Output
-Tensor output(Tensor in) 
-{
-	//Get x and previous hidden state 
-	Tensor x = in.at({ 0 });
-	Tensor a_prev = in.at({ 1 });
-
-
-}
