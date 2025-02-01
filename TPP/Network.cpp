@@ -2,11 +2,11 @@
 using namespace TPP;
 using namespace std;
 
-void Network::addLayer(std::unique_ptr<Layer>l)
+void Network::addLayer(Layer* l)
 {
 	
 	//Add the new layer
-	layers.push_back(std::move(l));
+	layers.push_back(l);
 }
 
 Tensor Network::output(Tensor input) 

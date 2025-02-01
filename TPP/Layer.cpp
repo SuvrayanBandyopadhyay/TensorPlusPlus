@@ -2,6 +2,8 @@
 using namespace std;
 using namespace TPP;
 
+#define EPSILON 0.01
+
 //Layer
 void Layer::update(long double lr)
 {
@@ -49,13 +51,15 @@ vector<size_t> DENSE::outputShape()
 //Update
 void DENSE::update(long double alpha) 
 {
-	W = W - alpha*dW*(1/backprop_count);
-	B = B - alpha * dB*(1/backprop_count);
-	backprop_count = 0;
+	if (backprop_count > 0)
+	{
+		W = W - alpha * dW * (1.0 / backprop_count);
+		B = B - alpha * dB * (1.0 / backprop_count);
+		backprop_count = 0;
 
-	dW = Tensor({ input_size,output_size }, 0);
-	dB = Tensor({ 1,output_size }, 0);
-
+		dW = Tensor({ input_size,output_size }, 0);
+		dB = Tensor({ 1,output_size }, 0);
+	}
 
 }
 
@@ -278,7 +282,7 @@ Tensor SOFTMAX::backpropagate(Tensor feedback)
 	for (int i = 0; i < diffdata.size(); i++)
 	{
 		long double c = denom - diffdata[i];
-		diffdata[i] *= c / pow(denom,2);//We want c e^x/(e^x + c) where c is e^x2 + e^x3 + .....
+		diffdata[i] *= c / (pow(denom,2)+EPSILON);//We want c e^x/(e^x + c) where c is e^x2 + e^x3 + .....
 	}
 	Tensor diff = Tensor(input.shape(), diffdata);
 	//Return hadamard product
@@ -408,14 +412,17 @@ Tensor CONV::backpropagate(Tensor feedback)
 //Update
 void CONV::update(long double lr) 
 {
-	for (unsigned int i = 0; i < filter.size(); i++) 
+	if (backprop_count > 0)
 	{
-		filter[i] -= lr * dfilter[i]*(1/backprop_count);
-		bias[i] -= lr * dbias[i]*(1/backprop_count);
+		for (unsigned int i = 0; i < filter.size(); i++)
+		{
+			filter[i] -= lr * dfilter[i] * (1.0 / backprop_count);
+			bias[i] -= lr * dbias[i] * (1.0 / backprop_count);
+		}
+		backprop_count = 0;
+		dfilter = rfilter;
+		dbias = rbias;
 	}
-	backprop_count = 0;
-	dfilter = rfilter;
-	dbias = rbias;
 }
 
 //Output shape
@@ -440,7 +447,7 @@ TPP::MAXPOOLING::MAXPOOLING(unsigned int fsize, std::vector<size_t>input_shape)
 	
 	unsigned int resultx = ((input_shape[input_shape.size() - 1]) / fsize) ;
 	unsigned int resulty = ((input_shape[input_shape.size() - 2]) / fsize) ;
-	cout << resultx << "," << resulty << endl;
+
 
 	_output_shape = input_shape;
 	_output_shape[_output_shape.size() - 1] = resultx;
@@ -679,4 +686,37 @@ Tensor MAXPOOLING::backpropagate(Tensor feedback)
 vector<size_t>MAXPOOLING::outputShape()
 {
 	return _output_shape;
+}
+
+//RNN Layer
+RNN::RNN(unsigned int input_size, unsigned int hidden_size, unsigned int output_size, Activation g1, Activation g2, time_t currtime)
+{
+	//Create the matrices
+	Waa = RandomTensor({ hidden_size,hidden_size }, 0);
+	Wax = RandomTensor({ hidden_size,input_size }, 0);
+	Ba = RandomTensor({ 1,hidden_size }, 0);
+
+	Wya = RandomTensor({ hidden_size,output_size }, 0);
+	By = RandomTensor({ 1,output_size }, 0);
+
+	dWaa = Tensor({ hidden_size,hidden_size }, 0);
+	dWax = Tensor({ hidden_size,input_size }, 0);
+	dBa = Tensor({ 1,hidden_size }, 0);
+
+	dWya = Tensor({ hidden_size,output_size }, 0);
+	dBy = Tensor({ 1,output_size }, 0);
+
+	//For activation functions
+	
+
+}
+
+//Output
+Tensor output(Tensor in) 
+{
+	//Get x and previous hidden state 
+	Tensor x = in.at({ 0 });
+	Tensor a_prev = in.at({ 1 });
+
+
 }

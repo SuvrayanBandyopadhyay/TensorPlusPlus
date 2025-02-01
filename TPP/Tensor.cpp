@@ -799,7 +799,38 @@ Tensor Tensor::convMult(Tensor second,unsigned int stride)
 	recConv(*this, second, &finalTensor,stride);
 	return finalTensor;
 }
-//Recursive dilation
+//quick dilation function
+Tensor quickDil(Tensor first, unsigned int dilation,vector<size_t>outshape) 
+{
+	//Input x and y bounds
+	unsigned int in_x = first.shape()[first.dim() - 1];
+	unsigned int in_y = first.shape()[first.dim() - 2];
+	//Final x and y
+	unsigned int fin_x = outshape[0];
+	unsigned int fin_y = outshape[1];
+
+	vector<long double> newdata(fin_x * fin_y,0);
+
+	unsigned int out_y = 0;
+	for (unsigned int i = 0; i < in_y; i++)
+	{
+		unsigned int out_x = 0;
+		for (unsigned int j = 0; j < in_x; j++)
+		{
+			//Getting the value
+			long double val = first.data()[i * in_x + j];
+	
+			//Setting the value in the final tensor
+			newdata[out_y * fin_x + out_x] = val;
+			//Go to the next pos
+			out_x += 1 + dilation;
+		}
+		out_y += 1 + dilation;
+
+	}
+
+	return Tensor(outshape, newdata);
+}
 
 //Recursive convolution function
 void recDil(Tensor first, Tensor* finalT, unsigned int dilation, vector<size_t>slice = {}, int currdim = 0)
@@ -818,33 +849,10 @@ void recDil(Tensor first, Tensor* finalT, unsigned int dilation, vector<size_t>s
 	//If we have already reached the penultimate depth
 	else
 	{
-		//Input x and y bounds
-		unsigned int in_x = first.shape()[first.dim() - 1];
-		unsigned int in_y = first.shape()[first.dim() - 2];
+		Tensor a = first.at(slice);
+		Tensor f = quickDil(a, dilation, finalT->at(slice).shape());
 
-		unsigned int out_y = 0;
-		for (unsigned int i = 0; i < in_y; i++) 
-		{
-			unsigned int out_x = 0;
-			for (unsigned int j = 0; j < in_x; j++)
-			{
-				//Getting the value
-				vector<size_t>index = slice;
-				index.push_back(i);
-				index.push_back(j);
-				Tensor val = first.at(index);
-				//Setting the value in the final tensor
-				vector<size_t>findex = slice;
-				findex.push_back(out_y);
-				findex.push_back(out_x);
-
-				finalT->set(findex, val);
-				//Go to the next pos
-				out_x += 1+dilation;
-			}
-			out_y += 1+dilation;
-			
-		}
+		finalT->set(slice, f);
 
 	}
 

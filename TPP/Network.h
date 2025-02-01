@@ -6,10 +6,10 @@ namespace TPP
 	class Network 
 	{
 	private:
-		std::vector<std::unique_ptr<Layer>>layers;
+		std::vector<Layer*>layers;
 	public:
 		long double alpha = 0.1;
-		void addLayer(std::unique_ptr<Layer>l);
+		void addLayer(Layer* l);
 
 		//Output of the layers
 		Tensor output(Tensor input);
