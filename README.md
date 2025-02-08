@@ -10,6 +10,7 @@ To use Tensor++ just add all header and cpp files to your project. Then import t
 #include"TPP/Tensor.h"
 #include"TPP/Layer.h"
 #include"TPP/Network.h"
+using namespace TPP;
 ```
 
 # Creating a Tensor
