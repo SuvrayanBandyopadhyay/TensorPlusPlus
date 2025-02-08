@@ -1,3 +1,5 @@
+![Logo v1](https://github.com/user-attachments/assets/392e5189-151d-4c8a-be3c-b3bca2bd19da)
+
 # Tensor++
 A header-only library to handle Tensors and Machine Learning in C++. Made for educational purposes for people who really want to know what happens when they import ML libraries. 
 
