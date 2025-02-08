@@ -5,7 +5,7 @@ A simple c++ library to handle Tensors and Machine Learning in C++. Made for edu
 
 
 # Basic usage
-To use Tensor++ just add all header and cpp files to your project. Then import them like this
+To use Tensor++ just add all header and cpp files to your project. Then include them like this
 ```
 #include"TPP/Tensor.h"
 #include"TPP/Layer.h"
