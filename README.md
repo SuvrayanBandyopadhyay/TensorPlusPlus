@@ -55,7 +55,7 @@ Some additional features are also planned
 1) RNNs
 
 
-The syntax to define a neural network is easy, just do this
+The syntax to define a neural network is easy, here is a sample network
 ```CPP
 	Network n;
 	long double d = 0.001;
