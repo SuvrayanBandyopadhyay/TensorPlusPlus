@@ -14,7 +14,7 @@ using namespace TPP;
 ```
 
 # Creating a Tensor
-Creating tensors are easy... just do this
+Creating tensors is easy... just do this
 ```
 Tensor T(vector<vector<vector<long double>>>({{ {{{1,2},{1,2}}},{{1,2},{1,2}} }}));
 
