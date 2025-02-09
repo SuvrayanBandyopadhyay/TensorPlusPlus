@@ -73,13 +73,13 @@ The syntax to define a neural network is easy, just do this
 Here n.alpha sets the learning rate and n.getOutputLayer() is used to get the output size of the neural network at the current moment which is used to define the shape of the tensors in the next layer
 
 ## Training the network
-To train the network, just do this
+To train the network, use backpropagate()
 
 ```
 n.backpropagate(fb);
 ```
 
-And when you need to update the parameters, just do this
+And when you need to update the parameters, call update()
 ```
 n.update();
 ```
