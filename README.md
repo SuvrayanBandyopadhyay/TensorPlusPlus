@@ -6,7 +6,7 @@ A simple c++ library to handle Tensors and Machine Learning in C++. Made for edu
 
 # Basic usage
 To use Tensor++ just add all header and cpp files to your project. Then include them like this
-```
+```CPP
 #include"TPP/Tensor.h"
 #include"TPP/Layer.h"
 #include"TPP/Network.h"
@@ -15,7 +15,7 @@ using namespace TPP;
 
 # Creating a Tensor
 Creating tensors is easy... just do this
-```
+```CPP
 Tensor T(vector<vector<vector<long double>>>({{ {{{1,2},{1,2}}},{{1,2},{1,2}} }}));
 
 ```
@@ -23,17 +23,17 @@ This creates a 4D tensor... You can do this for any number of dimensions
 
 Additionally we have some helper functions for common tensor types
 ## Scalars:
-```
+```CPP
 Tensor T = Scalar(2);
 ```
 
 ## Vectors:
-```
+```CPP
 Tensor T = Vector({ 1,2,3,4,5 });
 ```
 
 ## Matrices
-```
+```CPP
 Tensor T = Matrix({ {1,2},{3,4},{5,6} });
 ```
 
@@ -56,7 +56,7 @@ Some additional features are also planned
 
 
 The syntax to define a neural network is easy, just do this
-```
+```CPP
 	Network n;
 	long double d = 0.001;
 	n.alpha = d;
@@ -75,7 +75,7 @@ Here n.alpha sets the learning rate and n.getOutputLayer() is used to get the ou
 ## Training the network
 To train the network, use backpropagate()
 
-```
+```CPP
 n.backpropagate(fb);
 ```
 
@@ -85,7 +85,7 @@ n.update();
 ```
 
 # Overall training example
-```
+```CPP
 //Creating the neural network
 Network n;
 long double d = 0.001;
