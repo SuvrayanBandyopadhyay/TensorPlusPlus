@@ -58,7 +58,7 @@ Some additional features are also planned
 The syntax to define a neural network is easy, here is a sample network
 ```CPP
 	Network n;
-	long double d = 0.001;
+	float d = 0.001;
 	n.alpha = d;
 	n.addLayer(new CONV(2, 2, X[0].shape(), time(NULL),2));
 	n.addLayer(new FLATTEN(n.getOutputShape()));
