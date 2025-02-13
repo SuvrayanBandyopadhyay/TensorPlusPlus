@@ -88,7 +88,7 @@ n.update();
 ```CPP
 //Creating the neural network
 Network n;
-long double d = 0.001;
+float d = 0.001;
 n.alpha = d;
 n.addLayer(new CONV(2, 2, X[0].shape(), time(NULL),2));
 n.addLayer(new FLATTEN(n.getOutputShape()));
@@ -102,7 +102,7 @@ n.addLayer(new SOFTMAX(n.getOutputShape()));
 int batch = 5;
 
 //For bold driver
-long double prev_loss = INFINITY;
+float double prev_loss = INFINITY;
 Network prev = n;
 for (int i = 0; i < 500; i++) 
 {
