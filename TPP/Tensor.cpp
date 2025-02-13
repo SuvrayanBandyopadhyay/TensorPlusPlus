@@ -15,7 +15,7 @@ unsigned int numberFromShape(vector<size_t>shape)
 }
 
 //Constructor
-Tensor::Tensor(vector<size_t>shape, vector<long double>data) 
+Tensor::Tensor(vector<size_t>shape, vector<float>data) 
 {
 	if (numberFromShape(shape) == data.size())
 	{
@@ -27,7 +27,7 @@ Tensor::Tensor(vector<size_t>shape, vector<long double>data)
 		throw invalid_argument("Invalid shape");
 	}
 }
-Tensor::Tensor(std::vector<size_t>shape, long double value) 
+Tensor::Tensor(std::vector<size_t>shape, float value) 
 {
 	_shape = shape;
 
@@ -36,7 +36,7 @@ Tensor::Tensor(std::vector<size_t>shape, long double value)
 
 	unsigned int raw_size = numberFromShape(_shape);
 
-	vector<long double>data;
+	vector<float>data;
 	for (unsigned i = 0; i < raw_size; i++) 
 	{
 		data.push_back(value);
@@ -70,7 +70,7 @@ vector<size_t> Tensor::shape()
 	return _shape;
 }
 //Get raw data 
-vector<long double> Tensor::data() 
+vector<float> Tensor::data() 
 {
 	return _data;
 }
@@ -98,12 +98,12 @@ Tensor Tensor::operator+(Tensor second)
 	}
 	else 
 	{
-		vector<long double> data2;
+		vector<float> data2;
 
 		//Append summed data
 		for (unsigned int i = 0; i < _data.size(); i++) 
 		{
-			long double element = _data[i] + second._data[i];
+			float element = _data[i] + second._data[i];
 			data2.push_back(element);
 		}
 		Tensor t2(_shape, data2);
@@ -145,12 +145,12 @@ Tensor Tensor::operator-(Tensor second)
 	}
 	else
 	{
-		vector<long double> data2;
+		vector<float> data2;
 
 		//Append summed data
 		for (unsigned int i = 0; i < _data.size(); i++)
 		{
-			long double element = _data[i] - second._data[i];
+			float element = _data[i] - second._data[i];
 			data2.push_back(element);
 		}
 		Tensor t2(_shape, data2);
@@ -192,12 +192,12 @@ Tensor Tensor::operator%(Tensor second)
 	}
 	else
 	{
-		vector<long double> data2;
+		vector<float> data2;
 
 		//Append summed data
 		for (unsigned int i = 0; i < _data.size(); i++)
 		{
-			long double element = _data[i] * second._data[i];
+			float element = _data[i] * second._data[i];
 			data2.push_back(element);
 		}
 		Tensor t2(_shape, data2);
@@ -253,7 +253,7 @@ Tensor Tensor::at(std::initializer_list<size_t>pos)
 	unsigned int end_flat = getFlatIndex(endpos);
 	
 	//We include the last element as well
-	vector<long double> _newdata(_data.begin() + start_flat, _data.begin() + end_flat+1);
+	vector<float> _newdata(_data.begin() + start_flat, _data.begin() + end_flat+1);
 	
 	return Tensor(_newshape,_newdata);
 	
@@ -264,7 +264,7 @@ Tensor Tensor::at(std::vector<size_t>pos)
 	//The new shape of the tensor
 	vector<size_t> _newshape;
 	//The new data
-	vector<long double> _newdata;
+	vector<float> _newdata;
 
 	//We are slicing the tensor
 	vector<size_t>startpos = pos;
@@ -298,7 +298,7 @@ void Tensor::set(std::initializer_list<size_t>pos, Tensor val)
 	//The new shape of the tensor
 	vector<size_t> _newshape;
 	//The new data
-	vector<long double> _newdata;
+	vector<float> _newdata;
 
 	//We are slicing the tensor
 	vector<size_t>startpos = pos;
@@ -338,7 +338,7 @@ void Tensor::set(std::vector<size_t>pos, Tensor val)
 	//The new shape of the tensor
 	vector<size_t> _newshape;
 	//The new data
-	vector<long double> _newdata;
+	vector<float> _newdata;
 
 	//We are slicing the tensor
 	vector<size_t>startpos = pos;
@@ -374,20 +374,20 @@ void Tensor::set(std::vector<size_t>pos, Tensor val)
 }
 
 // Scalar, Vector and Matrix definition
-Tensor TPP::Scalar(long double val) 
+Tensor TPP::Scalar(float val) 
 {
 	vector<size_t>shape;
-	return Tensor(shape, vector<long double>({ val }));
+	return Tensor(shape, vector<float>({ val }));
 }
 
-Tensor TPP::Vector(std::initializer_list<long double>data) 
+Tensor TPP::Vector(std::initializer_list<float>data) 
 {
 	vector<size_t>shape;
 	shape.push_back(data.size());
-	return Tensor(shape, vector<long double>(data));
+	return Tensor(shape, vector<float>(data));
 }
 
-Tensor TPP::Matrix(std::initializer_list<std::initializer_list<long double>>data)
+Tensor TPP::Matrix(std::initializer_list<std::initializer_list<float>>data)
 {
 	vector<size_t>shape;
 	shape.push_back(data.size());
@@ -396,7 +396,7 @@ Tensor TPP::Matrix(std::initializer_list<std::initializer_list<long double>>data
 	shape.push_back(columns);
 	
 	
-	vector<long double> _data;
+	vector<float> _data;
 	for (auto i : data) 
 	{
 		if (i.size() != columns) 
@@ -437,7 +437,7 @@ Tensor quickMatMult(Tensor a, Tensor b)
 	unsigned int inter = a.shape()[a.dim() - 1];
 	unsigned int cols = b.shape()[b.dim() - 1];
 
-	vector<long double>newdata(rows*cols,0);
+	vector<float>newdata(rows*cols,0);
 	unsigned int c_index = 0;
 	for (unsigned int i = 0; i < rows; i++) 
 	{
@@ -445,7 +445,7 @@ Tensor quickMatMult(Tensor a, Tensor b)
 		for (unsigned int j = 0; j < cols;j++) 
 		{
 		
-			long double val = 0;
+			float val = 0;
 
 
 			unsigned int a_index = i * inter;
@@ -548,7 +548,7 @@ Tensor quickTranspose(Tensor a)
 	unsigned int rows = a.shape()[a.shape().size() - 2];
 	unsigned int columns = a.shape()[a.shape().size() - 1];
 
-	vector<long double>newdata(rows * columns, 0);
+	vector<float>newdata(rows * columns, 0);
 
 	for (unsigned int i = 0; i < rows; i++) 
 	{
@@ -664,9 +664,9 @@ Tensor Tensor::flattenCol()
 }
 
 //Scalar Multiplication
-Tensor Tensor::operator*(long double second)
+Tensor Tensor::operator*(float second)
 {
-	vector<long double>newdata = _data;
+	vector<float>newdata = _data;
 	for (int i = 0; i < newdata.size(); i++)
 	{
 		newdata[i] *= second;
@@ -674,7 +674,7 @@ Tensor Tensor::operator*(long double second)
 	return Tensor(_shape, newdata);
 }
 
-void Tensor::operator*=(long double second)
+void Tensor::operator*=(float second)
 {
 	for (int i = 0; i < _data.size(); i++)
 	{
@@ -683,7 +683,7 @@ void Tensor::operator*=(long double second)
 	}
 }
 
-Tensor TPP::operator*(long double second, const Tensor& tensor)
+Tensor TPP::operator*(float second, const Tensor& tensor)
 {
 	Tensor ret = (Tensor)tensor * second;
 	return ret;
@@ -700,7 +700,7 @@ Tensor quickConv(Tensor first, Tensor second, unsigned int stride)
 	unsigned int f_row = second.shape()[second.dim() - 2];
 	unsigned int f_col = second.shape()[second.dim() - 1];
 
-	vector<long double>newdata;
+	vector<float>newdata;
 	unsigned int finalx, finaly;
 	unsigned int y = 0;
 	for (int i = 0; i + f_row <=in_row; i += stride)
@@ -709,7 +709,7 @@ Tensor quickConv(Tensor first, Tensor second, unsigned int stride)
 		unsigned int x = 0;
 		for (int j = 0; j + f_col <= in_col; j += stride)
 		{
-			long double convVal = 0;
+			float convVal = 0;
 			//Now the operations
 			for (int k = 0; k < f_row; k++)
 			{
@@ -809,7 +809,7 @@ Tensor quickDil(Tensor first, unsigned int dilation,vector<size_t>outshape)
 	unsigned int fin_x = outshape[0];
 	unsigned int fin_y = outshape[1];
 
-	vector<long double> newdata(fin_x * fin_y,0);
+	vector<float> newdata(fin_x * fin_y,0);
 
 	unsigned int out_y = 0;
 	for (unsigned int i = 0; i < in_y; i++)
@@ -818,7 +818,7 @@ Tensor quickDil(Tensor first, unsigned int dilation,vector<size_t>outshape)
 		for (unsigned int j = 0; j < in_x; j++)
 		{
 			//Getting the value
-			long double val = first.data()[i * in_x + j];
+			float val = first.data()[i * in_x + j];
 	
 			//Setting the value in the final tensor
 			newdata[out_y * fin_x + out_x] = val;
@@ -878,9 +878,9 @@ Tensor Tensor::dilate(unsigned int dilation)
 }
 
 //Sum of elements
-long double Tensor::sumOfElements() 
+float Tensor::sumOfElements() 
 {
-	long double sum = 0;
+	float sum = 0;
 	for (int i = 0; i < _data.size(); i++) 
 	{
 		sum += _data[i];
@@ -889,18 +889,18 @@ long double Tensor::sumOfElements()
 }
 
 //Random Tensor
-Tensor TPP::RandomTensor(std::vector<size_t>shape,time_t seed, long double min, long double max)
+Tensor TPP::RandomTensor(std::vector<size_t>shape,time_t seed, float min, float max)
 {
 	//The random number engine
 	mt19937_64 eng(seed);
-	uniform_real_distribution<long double> dis(min, max);
+	uniform_real_distribution<float> dis(min, max);
 	
 	
 
 
 	unsigned int raw_size = numberFromShape(shape);
 
-	vector<long double>data;
+	vector<float>data;
 	for (unsigned i = 0; i < raw_size; i++)
 	{
 		data.push_back(dis(eng));
@@ -911,7 +911,7 @@ Tensor TPP::RandomTensor(std::vector<size_t>shape,time_t seed, long double min, 
 
 }
 
-long double Tensor::value() 
+float Tensor::value() 
 {
 	if (dim() != 0) 
 	{

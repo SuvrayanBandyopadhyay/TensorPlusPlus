@@ -19,7 +19,7 @@ namespace TPP
 		
 	public:
 		//Number of times backpropagations last update
-		long double backprop_count = 0;
+		float backprop_count = 0;
 		virtual ~Layer() {};
 		//Get output
 		virtual Tensor output(Tensor input) =0;
@@ -28,7 +28,7 @@ namespace TPP
 		virtual Tensor backpropagate(Tensor feedback) =0;
 
 		//Update gradients
-		virtual void update(long double lr);
+		virtual void update(float lr);
 
 		//Get the shape of the output
 		virtual std::vector<size_t> outputShape() = 0;
@@ -65,7 +65,7 @@ namespace TPP
 
 		//Update function
 		//Todo replace with actual optimizations
-		void update(long double alpha) override;
+		void update(float alpha) override;
 
 		std::vector<size_t> outputShape() override;
 
@@ -89,7 +89,7 @@ namespace TPP
 		//Backpropagate function
 		Tensor backpropagate(Tensor feedback) override;
 		//Update gradients
-		void update(long double lr)override {};
+		void update(float lr)override {};
 
 		std::vector<size_t> outputShape() override;
 
@@ -99,9 +99,9 @@ namespace TPP
 	{
 	private:
 		Tensor input;
-		long double alpha;
+		float alpha;
 	public:
-		LEAKY_RELU(std::vector<size_t>input_shape,long double a) ;
+		LEAKY_RELU(std::vector<size_t>input_shape,float a) ;
 
 		//Output function
 		Tensor output(Tensor in) override;
@@ -109,7 +109,7 @@ namespace TPP
 		//Backpropagate function
 		Tensor backpropagate(Tensor feedback) override;
 		//Update gradients
-		void update(long double lr)override {};
+		void update(float lr)override {};
 
 		//Output shape
 		std::vector<size_t> outputShape() override;
@@ -129,7 +129,7 @@ namespace TPP
 		//Backpropagate function
 		Tensor backpropagate(Tensor feedback) override;
 		//Update gradients
-		void update(long double lr)override {};
+		void update(float lr)override {};
 		//Output shape
 		std::vector<size_t> outputShape() override;
 
@@ -139,7 +139,7 @@ namespace TPP
 	{
 	private:
 		Tensor input;
-		long double alpha;
+		float alpha;
 	public:
 
 		TANH(std::vector<size_t>input_shape);
@@ -150,7 +150,7 @@ namespace TPP
 		//Backpropagate function
 		Tensor backpropagate(Tensor feedback) override;
 		//Update gradients
-		void update(long double lr)override {};
+		void update(float lr)override {};
 
 		//Output shape
 		std::vector<size_t> outputShape() override;
@@ -171,7 +171,7 @@ namespace TPP
 		//Backpropagate function
 		Tensor backpropagate(Tensor feedback) override;
 		//Update gradients
-		void update(long double lr)override {};
+		void update(float lr)override {};
 
 		//Output shape
 		std::vector<size_t> outputShape() override;
@@ -191,7 +191,7 @@ namespace TPP
 		//Backpropagate function
 		Tensor backpropagate(Tensor feedback) override;
 		//Update gradients
-		void update(long double lr)override {};
+		void update(float lr)override {};
 		//Output shape
 		std::vector<size_t> outputShape() override;
 	};
@@ -213,7 +213,7 @@ namespace TPP
 		Tensor input;
 	public:
 
-		CONV(unsigned int n, unsigned int fsize, std::vector<size_t>input_shape,time_t seed, unsigned int stride = 1, long double min = -1, long double  max = 1);
+		CONV(unsigned int n, unsigned int fsize, std::vector<size_t>input_shape,time_t seed, unsigned int stride = 1, float min = -1, float  max = 1);
 
 		//Output function
 		Tensor output(Tensor in) override;
@@ -221,7 +221,7 @@ namespace TPP
 		//Backpropagate function
 		Tensor backpropagate(Tensor feedback) override;
 		//Update gradients
-		void update(long double lr)override;
+		void update(float lr)override;
 		//Output shape
 		std::vector<size_t> outputShape() override;
 	};
@@ -247,7 +247,7 @@ namespace TPP
 		//Backpropagate function
 		Tensor backpropagate(Tensor feedback) override;
 		//Update gradients
-		void update(long double lr) {};
+		void update(float lr) {};
 		//Output shape
 		std::vector<size_t> outputShape() override;
 	};

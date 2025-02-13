@@ -5,7 +5,7 @@ using namespace TPP;
 #define EPSILON 0.01
 
 //Layer
-void Layer::update(long double lr)
+void Layer::update(float lr)
 {
 	backprop_count = 0;
 }
@@ -49,7 +49,7 @@ vector<size_t> DENSE::outputShape()
 }
 
 //Update
-void DENSE::update(long double alpha) 
+void DENSE::update(float alpha) 
 {
 	if (backprop_count > 0)
 	{
@@ -74,10 +74,10 @@ Tensor RELU::output(Tensor in)
 {
 	input = in;
 	//The output tensor
-	vector<long double>outdata = in.data();
+	vector<float>outdata = in.data();
 	for (int i = 0; i < outdata.size(); i++) 
 	{
-		outdata[i] = max(outdata[i], (long double)0.0);
+		outdata[i] = max(outdata[i], (float)0.0);
 	}
 	return Tensor(in.shape(), outdata);
 	
@@ -86,7 +86,7 @@ Tensor RELU::output(Tensor in)
 Tensor RELU::backpropagate(Tensor feedback) 
 {
 	backprop_count++;
-	vector<long double> diffdata = input.data();
+	vector<float> diffdata = input.data();
 	//Create the differentiation vector
 	for (int i = 0; i < diffdata.size(); i++) 
 	{
@@ -111,7 +111,7 @@ vector<size_t>RELU::outputShape()
 }
 
 //Leaky RELU
-LEAKY_RELU::LEAKY_RELU(vector<size_t>input_shape,long double a) 
+LEAKY_RELU::LEAKY_RELU(vector<size_t>input_shape,float a) 
 {
 	alpha = a;
 	_input_shape = input_shape;
@@ -121,7 +121,7 @@ Tensor LEAKY_RELU::output(Tensor in)
 {
 	input = in;
 	//The output tensor
-	vector<long double>outdata = in.data();
+	vector<float>outdata = in.data();
 	for (int i = 0; i < outdata.size(); i++)
 	{
 		if (outdata[i] <= 0) 
@@ -136,7 +136,7 @@ Tensor LEAKY_RELU::output(Tensor in)
 Tensor LEAKY_RELU::backpropagate(Tensor feedback)
 {
 	backprop_count++;
-	vector<long double> diffdata = input.data();
+	vector<float> diffdata = input.data();
 	//Create the differentiation vector
 	for (int i = 0; i < diffdata.size(); i++)
 	{
@@ -171,7 +171,7 @@ Tensor SIGMOID::output(Tensor in)
 {
 	input = in;
 	//The output tensor
-	vector<long double>outdata = in.data();
+	vector<float>outdata = in.data();
 	for (int i = 0; i < outdata.size(); i++)
 	{
 		outdata[i] = 1 / (1 + exp(-outdata[i]));
@@ -183,11 +183,11 @@ Tensor SIGMOID::output(Tensor in)
 Tensor SIGMOID::backpropagate(Tensor feedback)
 {
 	backprop_count++;
-	vector<long double> diffdata = input.data();
+	vector<float> diffdata = input.data();
 	//Create the differentiation vector
 	for (int i = 0; i < diffdata.size(); i++)
 	{
-		long double e = exp(-diffdata[i]);
+		float e = exp(-diffdata[i]);
 		diffdata[i] = e / pow((1 + e), 2);
 	}
 	Tensor diff = Tensor(input.shape(), diffdata);
@@ -211,7 +211,7 @@ Tensor TANH::output(Tensor in)
 {
 	input = in;
 	//The output tensor
-	vector<long double>outdata = in.data();
+	vector<float>outdata = in.data();
 	for (int i = 0; i < outdata.size(); i++)
 	{
 		outdata[i] = tanh(outdata[i]);//tanh 
@@ -223,7 +223,7 @@ Tensor TANH::output(Tensor in)
 Tensor TANH::backpropagate(Tensor feedback)
 {
 	backprop_count++;
-	vector<long double> diffdata = input.data();
+	vector<float> diffdata = input.data();
 	//Create the differentiation vector
 	for (int i = 0; i < diffdata.size(); i++)
 	{
@@ -250,8 +250,8 @@ SOFTMAX::SOFTMAX(vector<size_t>input_shape)
 Tensor SOFTMAX::output(Tensor in)
 {
 	input = in;
-	long double denom = 0;
-	vector<long double>outdata = in.data();
+	float denom = 0;
+	vector<float>outdata = in.data();
 	//Get the value of the constant summation e^c
 	for (int i = 0; i < outdata.size(); i++) 
 	{
@@ -270,8 +270,8 @@ Tensor SOFTMAX::output(Tensor in)
 Tensor SOFTMAX::backpropagate(Tensor feedback)
 {
 	backprop_count++;
-	long double denom = 0;
-	vector<long double>diffdata = input.data();
+	float denom = 0;
+	vector<float>diffdata = input.data();
 	//Get the value of the constant summation e^c
 	for (int i = 0; i < diffdata.size(); i++)
 	{
@@ -281,7 +281,7 @@ Tensor SOFTMAX::backpropagate(Tensor feedback)
 	//The derivative tensor
 	for (int i = 0; i < diffdata.size(); i++)
 	{
-		long double c = denom - diffdata[i];
+		float c = denom - diffdata[i];
 		diffdata[i] *= c / (pow(denom,2)+EPSILON);//We want c e^x/(e^x + c) where c is e^x2 + e^x3 + .....
 	}
 	Tensor diff = Tensor(input.shape(), diffdata);
@@ -323,7 +323,7 @@ vector<size_t>FLATTEN::outputShape()
 	return {1,k};
 }
 //CONV
-TPP::CONV::CONV(unsigned int n, unsigned int fsize, std::vector<size_t>input_shape, time_t seed, unsigned int stride, long double min, long double max)
+TPP::CONV::CONV(unsigned int n, unsigned int fsize, std::vector<size_t>input_shape, time_t seed, unsigned int stride, float min, float max)
 {
 	_stride = stride;
 	unsigned int resultx = ((input_shape[input_shape.size() - 1]-fsize)/stride) + 1;
@@ -410,7 +410,7 @@ Tensor CONV::backpropagate(Tensor feedback)
 }
 
 //Update
-void CONV::update(long double lr) 
+void CONV::update(float lr) 
 {
 	if (backprop_count > 0)
 	{
@@ -475,7 +475,7 @@ Tensor quickPool(Tensor first, vector<size_t>pool_shape)
 	unsigned int f_col = pool_shape[pool_shape.size() - 1];
 
 	//New data
-	vector<long double> newdata;
+	vector<float> newdata;
 
 	unsigned int y = (in_col/f_col);
 	unsigned int x = (in_row/f_row);
@@ -485,7 +485,7 @@ Tensor quickPool(Tensor first, vector<size_t>pool_shape)
 		for (int j = 0; j + f_col <= in_col; j += f_col)
 		{
 			//The maximum value
-			long double max = -INFINITY;
+			float max = -INFINITY;
 
 			//Now the operations
 			
@@ -496,7 +496,7 @@ Tensor quickPool(Tensor first, vector<size_t>pool_shape)
 				{
 
 					//Value >= max
-					long double val = first.data()[(i+k) * in_col + (j+l)];
+					float val = first.data()[(i+k) * in_col + (j+l)];
 					
 					if (val >= max)
 					{
@@ -587,7 +587,7 @@ Tensor quickPoolBack(Tensor input,Tensor fb, vector<size_t>pool_shape)
 	unsigned int f_row = pool_shape[pool_shape.size() - 2];
 	unsigned int f_col = pool_shape[pool_shape.size() - 1];
 	//New data
-	vector<long double>new_data(in_row*in_col,0);
+	vector<float>new_data(in_row*in_col,0);
 
 	unsigned int y = 0;
 	for (int i = 0; i + f_row <= in_row; i += f_row)
@@ -595,7 +595,7 @@ Tensor quickPoolBack(Tensor input,Tensor fb, vector<size_t>pool_shape)
 		unsigned int x = 0;
 		for (int j = 0; j + f_col <= in_col; j += f_col)
 		{
-			long double max = -INFINITY;
+			float max = -INFINITY;
 
 			//Index of max value
 			unsigned int maxindex = -1;
@@ -607,7 +607,7 @@ Tensor quickPoolBack(Tensor input,Tensor fb, vector<size_t>pool_shape)
 					//index
 					unsigned int index = (i + k) * in_col + (j + l);
 
-					long double val = input.data()[index];
+					float val = input.data()[index];
 					if (val >= max)
 					{
 						max = val;

@@ -15,7 +15,7 @@ namespace TPP
 	class Tensor
 	{
 	private:
-		std::vector<long double>_data;//The data stored in our tensor
+		std::vector<float>_data;//The data stored in our tensor
 		std::vector<size_t>_shape;//Shape of our tensor
 
 		
@@ -65,16 +65,16 @@ namespace TPP
 		}
 		
 		//When shape and raw data are known
-		Tensor(std::vector<size_t>shape,std::vector<long double>data);
+		Tensor(std::vector<size_t>shape,std::vector<float>data);
 
 		//When we want to initialize to a particular shape and a constant value
-		Tensor(std::vector<size_t>shape, long double value);
+		Tensor(std::vector<size_t>shape, float value);
 
 		//Get shape of the data
 		std::vector<size_t> shape();
 
 		//Get raw data of the tensor
-		std::vector<long double>data();
+		std::vector<float>data();
 
 
 		//Assignment Operator
@@ -117,9 +117,9 @@ namespace TPP
 		Tensor matMul(Tensor second);
 
 		//Multiplication with scalars
-		Tensor operator*(long double second);
-		void operator*=(long double second);
-		friend Tensor operator*(long double second, const Tensor& tensor);
+		Tensor operator*(float second);
+		void operator*=(float second);
+		friend Tensor operator*(float second, const Tensor& tensor);
 
 		//Returns dimension of a tensor
 		unsigned int dim();
@@ -143,21 +143,21 @@ namespace TPP
 		//Tensor dilation operation
 		Tensor dilate(unsigned int stride);
 		//Sum of elements
-		long double sumOfElements();
+		float sumOfElements();
 		//Value
-		long double value();
+		float value();
 		
 	};
 
 	//Some helper functions to define scalars, vectors and matrices
-	Tensor Scalar(long double val);
+	Tensor Scalar(float val);
 
-	Tensor Vector(std::initializer_list<long double>data);
+	Tensor Vector(std::initializer_list<float>data);
 
-	Tensor Matrix(std::initializer_list<std::initializer_list<long double>>data);
+	Tensor Matrix(std::initializer_list<std::initializer_list<float>>data);
 
 	//Random Tensor
-	Tensor RandomTensor(std::vector<size_t>shape,time_t seed, long double min = -1, long double max = 1);
+	Tensor RandomTensor(std::vector<size_t>shape,time_t seed, float min = -1, float max = 1);
 
 
 }

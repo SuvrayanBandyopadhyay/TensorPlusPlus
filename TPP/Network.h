@@ -8,7 +8,7 @@ namespace TPP
 	private:
 		std::vector<Layer*>layers;
 	public:
-		long double alpha = 0.1;
+		float alpha = 0.1;
 		void addLayer(Layer* l);
 
 		//Output of the layers
