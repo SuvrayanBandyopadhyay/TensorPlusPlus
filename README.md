@@ -16,7 +16,7 @@ using namespace TPP
 # Creating a Tensor
 Creating tensors is easy... just do this
 ```CPP
-Tensor T(vector<vector<vector<long double>>>({{ {{{1,2},{1,2}}},{{1,2},{1,2}} }}));
+Tensor T(vector<vector<vector<float>>>({{ {{{1,2},{1,2}}},{{1,2},{1,2}} }}));
 
 ```
 This creates a 4D tensor... You can do this for any number of dimensions
