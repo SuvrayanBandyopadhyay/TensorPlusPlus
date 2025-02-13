@@ -163,5 +163,9 @@ for (int i = 0; i < X.size(); i++)
 ```
 The above method uses the bold driver learning heuristic (Increase learning rate by 5% if loss decreases, halve it if loss increases)
 
+The final result looks like this
+![image](https://github.com/user-attachments/assets/09da6454-e281-4000-8049-5d4b8646cc87)
+
+
 # Additional notes
 Please feel free if you have any doubts, queries or suggestions. I'll be happy to respond. Also i'll be happy if you can report any bugs or improvements, for it means you've gone through my code
