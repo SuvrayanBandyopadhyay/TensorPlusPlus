@@ -859,6 +859,9 @@ void recDil(Tensor &first, Tensor* finalT, unsigned int dilation, vector<size_t>
 }
 
 
+
+
+
 //Tensor dilation function
 Tensor Tensor::dilate(unsigned int dilation)
 {
@@ -922,5 +925,157 @@ float Tensor::value()
 
 
 
+//Padding
+//quick dilation function
+Tensor quickPad(Tensor& first, unsigned int padding, vector<size_t>outshape)
+{
+	//Final x and y
+	unsigned int fin_x = outshape[0];
+	unsigned int fin_y = outshape[1];
+
+	vector<float> newdata(fin_x * fin_y, 0);
+
+	//To track which element of the original element we are adding right now
+	unsigned int in_index = 0;
 
 
+	for (unsigned int i = 0; i < fin_y; i++) 
+	{
+		for (unsigned int j = 0; j < fin_x; j++) 
+		{
+
+			//If part of the padded region
+			if (i < padding || i >= fin_y - padding || j < padding || j >= fin_x - padding) 
+			{
+				continue;
+			}
+			//Insert value from original
+			else 
+			{
+				newdata[i * fin_x + j] = first.data()[in_index];
+				in_index++;
+			}
+		}
+	}
+
+	return Tensor(outshape, newdata);
+}
+
+//Recursive padding function
+void recPad(Tensor& first, Tensor* finalT, unsigned int padding, vector<size_t>slice = {}, int currdim = 0)
+{
+	//If not the deepest level
+	if (currdim < first.dim() - 2)
+	{
+		for (unsigned int i = 0; i < first.shape()[currdim]; i++)
+		{
+			vector<size_t>newslice = slice;
+			newslice.push_back(i);
+			recPad(first, finalT, padding, newslice, currdim + 1);
+
+		}
+	}
+	//If we have already reached the penultimate depth
+	else
+	{
+		Tensor a = first.at(slice);
+		Tensor f = quickPad(a, padding, finalT->at(slice).shape());
+
+		finalT->set(slice, f);
+
+	}
+
+}
+
+
+
+
+
+//Tensor dilation function
+Tensor Tensor::pad(unsigned int padding)
+{
+	//Dilate the tensor
+	unsigned int x_dil = (_shape[_shape.size() - 1]) +2*padding;
+	unsigned int y_dil = (_shape[_shape.size() - 2]) +2*padding;
+
+	//The new shape
+	vector<size_t> nshape = _shape;
+	nshape[nshape.size() - 1] = x_dil;
+	nshape[nshape.size() - 2] = y_dil;
+
+	Tensor finalT(nshape, 0);
+
+	//Recursive padding
+	recPad(*this, &finalT, padding);
+	return finalT;
+}
+
+
+//Function to rotate
+//Quick transpose
+Tensor quickRotate(Tensor& a)
+{
+	//The number of rows and columns
+	unsigned int rows = a.shape()[a.shape().size() - 2];
+	unsigned int columns = a.shape()[a.shape().size() - 1];
+
+	vector<float>newdata(rows * columns, 0);
+
+	for (unsigned int i = 0; i < rows; i++)
+	{
+
+		for (unsigned int j = 0; j < columns; j++)
+		{
+			unsigned int a_index = i * columns + j;
+			int b_index = (j)*rows + (rows - i - 1);
+			newdata[b_index] = a.data()[a_index];
+		}
+	}
+
+	return Tensor({ columns,rows }, newdata);
+
+}
+
+//Rotate
+
+void recRotate(Tensor& first, Tensor* finalT, vector<size_t>slice = {}, int currdim = 0)
+{
+	//If not the deepest level
+	if (currdim < first.dim() - 2)
+	{
+		for (unsigned int i = 0; i < first.shape()[currdim]; i++)
+		{
+			vector<size_t>newslice = slice;
+			newslice.push_back(i);
+			recRotate(first, finalT, newslice, currdim + 1);
+
+		}
+	}
+	//If we have already reached the penultimate depth
+	else
+	{
+		Tensor c = quickRotate(first);
+		finalT->set(slice, c);
+	}
+
+}
+
+Tensor Tensor::rotate()
+{
+	if (dim() < 2)
+	{
+		throw invalid_argument("Cannot Find transpose of this tensor. Must have atleast 2 dimensions");
+	}
+	else
+	{
+		vector<size_t>tshape = _shape;
+		size_t temp = tshape[tshape.size() - 1];
+		tshape[tshape.size() - 1] = tshape[tshape.size() - 2];
+		tshape[tshape.size() - 2] = temp;
+
+		Tensor result(tshape, 0);
+		recRotate(*this, &result);
+		return result;
+	}
+
+}

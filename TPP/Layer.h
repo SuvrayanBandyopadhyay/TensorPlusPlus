@@ -200,6 +200,7 @@ namespace TPP
 	{
 	private:
 		unsigned int _stride;
+		unsigned int _fsize;
 		std::vector<Tensor> filter;
 		std::vector<Tensor> bias;
 		std::vector<size_t>_input_shape;
@@ -211,6 +212,7 @@ namespace TPP
 		std::vector<Tensor>rfilter;
 		std::vector<Tensor>rbias;
 		Tensor input;
+
 	public:
 
 		CONV(unsigned int n, unsigned int fsize, std::vector<size_t>input_shape,time_t seed, unsigned int stride = 1, float min = -1, float  max = 1);

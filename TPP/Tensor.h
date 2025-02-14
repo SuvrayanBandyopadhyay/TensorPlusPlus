@@ -146,7 +146,12 @@ namespace TPP
 		float sumOfElements();
 		//Value
 		float value();
-		
+
+		//Padding
+		Tensor pad(unsigned int padding);
+
+		//Rotate (Clockwise)
+		Tensor rotate();
 	};
 
 	//Some helper functions to define scalars, vectors and matrices
@@ -158,6 +163,5 @@ namespace TPP
 
 	//Random Tensor
 	Tensor RandomTensor(std::vector<size_t>shape,time_t seed, float min = -1, float max = 1);
-
 
 }

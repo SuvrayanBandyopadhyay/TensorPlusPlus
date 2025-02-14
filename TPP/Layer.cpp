@@ -326,8 +326,15 @@ vector<size_t>FLATTEN::outputShape()
 TPP::CONV::CONV(unsigned int n, unsigned int fsize, std::vector<size_t>input_shape, time_t seed, unsigned int stride, float min, float max)
 {
 	_stride = stride;
-	unsigned int resultx = ((input_shape[input_shape.size() - 1]-fsize)/stride) + 1;
-	unsigned int resulty = ((input_shape[input_shape.size() - 2] - fsize) / stride) + 1;
+	_fsize = fsize;
+	unsigned int resultx = (int)((input_shape[input_shape.size() - 1]-fsize)/stride) + 1;
+	unsigned int resulty = (int)((input_shape[input_shape.size() - 2] - fsize) / stride) + 1;
+	
+	if (input_shape[input_shape.size() - 1] % stride != 0 || input_shape[input_shape.size() - 2] % stride != 0) 
+	{
+		throw std::invalid_argument("input size is not a multiple of filter size");
+	}
+	
 	_input_shape = input_shape;
 	//The filter shape
 	vector<size_t>filter_shape = input_shape;
@@ -394,19 +401,41 @@ Tensor CONV::backpropagate(Tensor feedback)
 {
 	backprop_count++;
 	//Dilate the feedback tensor
-	Tensor fb_filter = feedback.dilate(_stride-1);
+	Tensor fb_filter = feedback.dilate(_stride - 1);
+
+	//New feedback
+	Tensor fb = Tensor(_input_shape, 0);
+
 	//Convolutional operation with input
 	for (unsigned int i = 0; i < dfilter.size(); i++)
 	{
 		//Get the delta change
+		
 		Tensor delta = input.convMult(fb_filter.at({ i }), 1);
+
+
 
 		//Update the values
 		dfilter[i] += delta;
+		
 		dbias[i] += feedback.at({ i });
+
+		//Get new feedback
+		unsigned int in_dim = _input_shape[0];
+		unsigned int out_dim = outputShape()[outputShape().size() - 1];
+		unsigned int padl = ((in_dim - 1) * _stride + _fsize - out_dim) / 2;
+		Tensor imm = dbias[i].pad(padl);
+
+	
+
+		fb += imm.convMult(filter[i].rotate().rotate(), _stride);//Since dbias[i] = feedback.at({i})
+		
+		
 	}
 
-	return feedback;
+
+
+	return fb;
 }
 
 //Update
