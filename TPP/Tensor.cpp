@@ -431,7 +431,7 @@ string Tensor::shapeString()
 	return ret;
 }
 
-Tensor quickMatMult(Tensor a, Tensor b) 
+Tensor quickMatMult(Tensor &a, Tensor &b) 
 {
 	unsigned int rows = a.shape()[a.dim() - 2];
 	unsigned int inter = a.shape()[a.dim() - 1];
@@ -466,7 +466,7 @@ Tensor quickMatMult(Tensor a, Tensor b)
 	
 }
 
-void recMultiply(Tensor first, Tensor second, Tensor* finalT, vector<size_t>slice = {}, int currdim=0)
+void recMultiply(Tensor &first, Tensor &second, Tensor* finalT, vector<size_t>slice = {}, int currdim=0)
 {
 	//If not the deepest level
 	if (currdim < first.dim() - 2)
@@ -542,7 +542,7 @@ void Tensor::operator*=(Tensor second)
 
 
 //Quick transpose
-Tensor quickTranspose(Tensor a) 
+Tensor quickTranspose(Tensor &a) 
 {
     //The number of rows and columns
 	unsigned int rows = a.shape()[a.shape().size() - 2];
@@ -567,7 +567,7 @@ Tensor quickTranspose(Tensor a)
 
 //Transpose
 
-void recTranspose(Tensor first, Tensor* finalT, vector<size_t>slice = {}, int currdim = 0)
+void recTranspose(Tensor &first, Tensor* finalT, vector<size_t>slice = {}, int currdim = 0)
 {
 	//If not the deepest level
 	if (currdim < first.dim() - 2)
@@ -690,7 +690,7 @@ Tensor TPP::operator*(float second, const Tensor& tensor)
 }
 
 //Function to help in quick convolution operations
-Tensor quickConv(Tensor first, Tensor second, unsigned int stride)
+Tensor quickConv(Tensor &first, Tensor second, unsigned int stride)
 {
 	//Input
 	unsigned int in_row = first.shape()[first.dim() - 2];
@@ -737,7 +737,7 @@ Tensor quickConv(Tensor first, Tensor second, unsigned int stride)
 }
 
 //Recursive convolution function
-void recConv(Tensor first, Tensor second, Tensor* finalT, unsigned int stride, vector<size_t>slice = {}, int currdim = 0)
+void recConv(Tensor &first, Tensor &second, Tensor* finalT, unsigned int stride, vector<size_t>slice = {}, int currdim = 0)
 {
 	//If not the deepest level
 	if (currdim < first.dim() - 2)
@@ -800,7 +800,7 @@ Tensor Tensor::convMult(Tensor second,unsigned int stride)
 	return finalTensor;
 }
 //quick dilation function
-Tensor quickDil(Tensor first, unsigned int dilation,vector<size_t>outshape) 
+Tensor quickDil(Tensor &first, unsigned int dilation,vector<size_t>outshape) 
 {
 	//Input x and y bounds
 	unsigned int in_x = first.shape()[first.dim() - 1];
@@ -832,8 +832,8 @@ Tensor quickDil(Tensor first, unsigned int dilation,vector<size_t>outshape)
 	return Tensor(outshape, newdata);
 }
 
-//Recursive convolution function
-void recDil(Tensor first, Tensor* finalT, unsigned int dilation, vector<size_t>slice = {}, int currdim = 0)
+//Recursive dilation function
+void recDil(Tensor &first, Tensor* finalT, unsigned int dilation, vector<size_t>slice = {}, int currdim = 0)
 {
 	//If not the deepest level
 	if (currdim < first.dim() - 2)
