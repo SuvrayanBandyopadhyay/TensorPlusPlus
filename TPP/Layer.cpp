@@ -420,15 +420,19 @@ Tensor CONV::backpropagate(Tensor feedback)
 		
 		dbias[i] += feedback.at({ i });
 
-		//Get new feedback
-		unsigned int in_dim = _input_shape[0];
-		unsigned int out_dim = outputShape()[outputShape().size() - 1];
-		unsigned int padl = ((in_dim - 1) * _stride + _fsize - out_dim) / 2;
-		Tensor imm = dbias[i].pad(padl);
+	
+		//Calculating new feedback
+		//Increase in padding 
+		unsigned int padl = _fsize - 1;
+		//Increase in dilation
+		unsigned int dill = _stride-1;
+
+		Tensor imm = dbias[i].dilate(dill);
+		imm = imm.pad(padl);
 
 	
-
-		fb += imm.convMult(filter[i].rotate().rotate(), _stride);//Since dbias[i] = feedback.at({i})
+		
+		fb += imm.convMult(filter[i].rotate().rotate(), 1);//Since dbias[i] = feedback.at({i})
 		
 		
 	}
