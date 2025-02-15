@@ -15,7 +15,7 @@ namespace TPP
 		Tensor output(Tensor input);
 
 		//Backpropagation of all the layers
-		void backpropagate(Tensor fb);
+		Tensor backpropagate(Tensor fb);
 		//Updating the gradients
 		void update();
 		//Get the last shape

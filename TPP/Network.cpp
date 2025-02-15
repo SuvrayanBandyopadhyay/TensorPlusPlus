@@ -20,12 +20,13 @@ Tensor Network::output(Tensor input)
 }
 
 //Backpropagate
-void Network::backpropagate(Tensor fb) 
+Tensor Network::backpropagate(Tensor fb) 
 {
 	for (int i = layers.size() - 1; i >= 0; i--) 
 	{
 		fb = layers[i]->backpropagate(fb);
 	}
+	return fb;
 }
 
 //Update
