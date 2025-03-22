@@ -1062,12 +1062,7 @@ void recRotate(Tensor& first, Tensor* finalT, vector<size_t>slice = {}, int curr
 
 Tensor Tensor::rotate()
 {
-	if (dim() < 2)
-	{
-		throw invalid_argument("Cannot Find transpose of this tensor. Must have atleast 2 dimensions");
-	}
-	else
-	{
+
 		vector<size_t>tshape = _shape;
 		size_t temp = tshape[tshape.size() - 1];
 		tshape[tshape.size() - 1] = tshape[tshape.size() - 2];
@@ -1076,6 +1071,6 @@ Tensor Tensor::rotate()
 		Tensor result(tshape, 0);
 		recRotate(*this, &result);
 		return result;
-	}
+	
 
 }
