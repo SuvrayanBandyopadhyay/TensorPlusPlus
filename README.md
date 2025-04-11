@@ -49,7 +49,7 @@ The library also supports the following neural network layers
 5) Sigmoid
 6) Softmax
 7) Max Pooling
-8) CNN
+8) Convolution
 
 Some additional features are also planned
 1) RNNs
